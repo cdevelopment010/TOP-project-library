@@ -7,7 +7,7 @@ const openFormBtn = document.querySelector('#open-form');
 const cancelBookBtn = document.querySelector('#cancel-book'); 
 const addBookBtn = document.querySelector('#add-book'); 
 const modal = document.querySelector('.modal'); 
-
+const errors = {}; 
 let myLibrary = []
 
 
@@ -16,18 +16,34 @@ cancelBookBtn.addEventListener('click', closeForm);
 addBookBtn.addEventListener('click', addBook); 
 
 // constructor
-function Book(author, title, pages, read) {
-    this.author = author; 
-    this.title = title; 
-    this.pages = pages; 
-    this.read = read; 
-}
+// function Book(author, title, pages, read) {
+//     this.author = author; 
+//     this.title = title; 
+//     this.pages = pages; 
+//     this.read = read; 
+// }
 
-Book.prototype.toggleRead = function() {
-    this.read = this.read ? false : true; 
-    displayBooks(); 
-}
+// Book.prototype.toggleRead = function() {
+//     this.read = this.read ? false : true; 
+//     displayBooks(); 
+// }
 
+
+// Using class notation
+
+class Book {
+    constructor(author, title, pages, read) {
+        this.author = author; 
+        this.title = title; 
+        this.pages = pages; 
+        this.read =read; 
+    }
+
+    toggleRead() {
+        this.read = this.read ? false : true;
+        displayBooks(); 
+    }
+}
 
 // function to add to myLibrary array   
 function addBookToLibrary(book) {
@@ -75,12 +91,44 @@ function displayBooks() {
 }
 
 
+
+// Check input form validity on change
+
+
+
 // New book button that brings up a form
 // Need: author, title, number of pages, if it has been read, and anything else you want
 
 function addBook(event) {
-
+    for (const prop of Object.getOwnPropertyNames(errors)) {
+        delete errors[prop];
+      }
+    modal.querySelector('.errors').innerText = '';
     event.preventDefault(); 
+    
+
+    if (modal.querySelector('#pages').validity.rangeUnderflow) {
+        errors['#pages'] = 'Number of pages need to be greater than 0.'; 
+    }
+    if (modal.querySelector('#pages').validity.valueMissing) {
+        console.log("pages validity", modal.querySelector('#pages').checkValidity());
+        errors['#pages'] = 'Please add number of pages.'; 
+        modal.querySelector('#pages').setCustomValidity('Please add number of pages.'); 
+        modal.querySelector('#pages').reportValidity();
+    }
+    if (modal.querySelector('#title').validity.valueMissing) {
+        console.log("title validity", modal.querySelector('#title').checkValidity());
+        errors['#title'] = 'Please add the book title.'; 
+        modal.querySelector('#title').setCustomValidity('Please add the book title.'); 
+        modal.querySelector('#title').reportValidity();
+    }
+    if (modal.querySelector('#author').validity.valueMissing) {
+        console.log("author validity", modal.querySelector('#author').validity.valueMissing);
+        errors['#author'] = 'Please add the author.'; 
+        modal.querySelector('#author').setCustomValidity('Please add the author.'); 
+        modal.querySelector('#author').reportValidity();
+    }
+    console.log(errors); 
 
     if (modal.querySelector('form').checkValidity()) {
         console.log('passed')
@@ -96,11 +144,14 @@ function addBook(event) {
         } 
     } else {
         console.log('failed!'); 
-        modal.querySelector('#pages').reportValidity();
-        modal.querySelector('#title').reportValidity();
-        modal.querySelector('#author').reportValidity();
     }
+
+    for (let err in errors) {
+        const li = document.createElement('li'); 
+        li.innerText = errors[err]
+        modal.querySelector('.errors').append(li);         
     }
+}
 
 
 // Add a button on each book's display to remove the book
@@ -128,6 +179,7 @@ function updateStatus() {
 function openForm() {
     modal.classList.toggle('hidden');
     overlay.classList.toggle('hidden');
+    modal.querySelector('.errors').innerText = '';
     modal.querySelector('#author').required = true; 
     modal.querySelector('#title').required = true; 
     modal.querySelector('#pages').required = true; 

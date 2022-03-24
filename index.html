@@ -56,8 +56,9 @@
 
     <div class="modal hidden">
         <h3>Add Book</h3>
-        <form action="#">
+        <form action="#" novalidate>
 
+            <ul class="errors"></ul>
             <label for="author">
                 Author: 
                 <input type="text" name="author" id="author" required>
@@ -74,7 +75,7 @@
                 Read: 
                 <select name="read" id="read">
                     <option value="true">Read</option>
-                    <option value="false">No yet!</option>
+                    <option value="false">Not yet!</option>
                 </select>
             </label>
 <!-- 
